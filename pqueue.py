@@ -9,18 +9,31 @@ import itertools as it
 
 class PriorityQueue:
     __REMOVED = object()
-    def __init__(self, items=(), max_heap=False):
+    def __init__(self, items=(), heap_type='min', queue_order='fifo'):
         """
         PriorityQueue
 
         Keyword Arguments:
             items -- iterable of key priority pairs
-            max_heap -- use max heap instead of min heap
+            heap_type -> 'min'|'max'
+            queue_order -> 'fifo'|'lifo'
         """
         self.__pq = []
         self.__ef = {}
         self.__id = it.count()
-        self.__m = (-1 if max_heap else 1)
+        if heap_type == 'min':
+            self.__m = 1
+        elif heap_type == 'max':
+            self.__m = -1
+        else:
+            raise Exception('invalid heap_type ({})'.format(heap_type))
+        
+        if queue_order == 'fifo':
+            self.__c = 1
+        elif queue_order == 'lifo':
+            self.__c = -1
+        else:
+            raise Exception('invalid queue_order ({})'.format(queue_order))
 
         for k,p in items:
             self[k] = p
@@ -33,7 +46,7 @@ class PriorityQueue:
             del self[k]
         
         count = next(self.__id)
-        entry = [priority * self.__m, count, k]
+        entry = [priority * self.__m, count * self.__c, k]
 
         self.__ef[k] = entry
         heapq.heappush(self.__pq, entry)
